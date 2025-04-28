@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Анализ точности радаров заводов А и В</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Анализ точности радаров заводов A и B</h1>
+
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Завод A</h5>
+                    <textarea name="deviations_a" class="form-control mb-2" placeholder="Отклонения (через запятую)" required></textarea>
+                    <textarea name="counts_a" class="form-control mb-4" placeholder="Количество измерений (через запятую)" required></textarea>
+                </div>
+                <div class="col-md-6">
+                    <h5>Завод B</h5>
+                    <textarea name="deviations_b" class="form-control mb-2" placeholder="Отклонения (через запятую)" required></textarea>
+                    <textarea name="counts_b" class="form-control mb-4" placeholder="Количество измерений (через запятую)" required></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Выполнить анализ</button>
+        </form>
+
+        {% if result %}
+            {% if result.error %}
+                <div class="alert alert-danger mt-4">{{ result.error }}</div>
+            {% else %}
+                <h2 class="mt-5">Результаты анализа</h2>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h4>Основные статистики (Завод A)</h4>
+                        <ul>
+                            <li>Количество измерений: {{ result.a.n }}</li>
+                            <li>Среднее: {{ "%.4f"|format(result.a.mean) }}</li>
+                            <li>Стандартное отклонение: {{ "%.4f"|format(result.a.std) }}</li>
+                            <li>Минимальное значение: {{ "%.4f"|format(result.a.min) }}</li>
+                            <li>Максимальное значение: {{ "%.4f"|format(result.a.max) }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Основные статистики (Завод B)</h4>
+                        <ul>
+                            <li>Количество измерений: {{ result.b.n }}</li>
+                            <li>Среднее: {{ "%.4f"|format(result.b.mean) }}</li>
+                            <li>Стандартное отклонение: {{ "%.4f"|format(result.b.std) }}</li>
+                            <li>Минимальное значение: {{ "%.4f"|format(result.b.min) }}</li>
+                            <li>Максимальное значение: {{ "%.4f"|format(result.b.max) }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h5>Проверка нормальности распределения (Завод A)</h5>
+                <ul>
+                    <li>Статистика: {{ "%.4f"|format(result.a.statistic) }}</li>
+                    <li>p-значение: {{ "%.4f"|format(result.a.p_value) }}</li>
+                    <li>Вывод: распределение <b>{% if result.a.normal %}Нормальное{% else %}Не нормальное{% endif %}</b> (α = 0.05)</li>
+                </ul>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>Распределение отклонений (Завод A)</h5>
+                        <img src="data:image/png;base64,{{ result.a.histogram }}" class="img-fluid">
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Распределение отклонений (Завод B)</h5>
+                        <img src="data:image/png;base64,{{ result.b.histogram }}" class="img-fluid">
+                    </div>
+                </div>
+
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>
